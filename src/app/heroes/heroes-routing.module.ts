@@ -27,7 +27,8 @@ const routes: Routes = [
         path: 'list',
         component: ListPageComponent
       },
-      {
+      // El orden es importante
+      { //Importante mantener este orden ya que si se coloca de 1 no entraria a las demas rutas
         path: ':id',
         component: HeroPageComponent
       },
