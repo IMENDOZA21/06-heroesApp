@@ -10,6 +10,8 @@ import { Hero } from '../interfaces/hero.interface';
 export class HeroesService {
 
   private baseURL: string = environments.baseURL;
+  private pagsize: number = 6;
+
   constructor(private http: HttpClient) { }
 
   getHeroes(): Observable<Hero[]> {
@@ -24,5 +26,9 @@ export class HeroesService {
           return of(undefined);
         })
       );
+  }
+
+  getSuggestions(query: string): Observable<Hero[]> {
+    return this.http.get<Hero[]>(`${this.baseURL}/heroes?q=${query}&_limit=${this.pagsize}`);
   }
 }
