@@ -32,17 +32,27 @@ export class NewPageComponent {
   ]
 
   constructor(
-    private heroesService:HeroesService
-  ) {}
+    private heroesService: HeroesService
+  ) { }
 
-  get curretHero():Hero {
+  get curretHero(): Hero {
     const hero = this.heroForm.value as Hero;
     return hero;
   }
 
-  onSubmit():void {
+  onSubmit(): void {
     if (this.heroForm.invalid) return;
 
-    this.heroesService.updateHero(this.curretHero);
+    if (this.curretHero.id) {
+      this.heroesService.updateHero(this.curretHero)
+        .subscribe( hero => {
+          // TODO: mostrar snackbar
+        });
+    } else {
+      this.heroesService.addHero(this.curretHero)
+        .subscribe( hero => {
+          // TODO: mostrar snackbar, y navegar a /heroes/edit/hero.id
+        });
+    }
   }
 }
