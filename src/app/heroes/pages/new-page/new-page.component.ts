@@ -3,7 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Hero, Publisher } from '../../interfaces/hero.interface';
 import { HeroesService } from '../../services/heroes.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { switchMap } from 'rxjs';
+import { filter, switchMap } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
@@ -49,12 +49,12 @@ export class NewPageComponent implements OnInit {
 
     this.activatedRoute.params
       .pipe(
-        switchMap( ({ id }) => this.heroesService.getHeroById(id))
-      ).subscribe( hero => {
+        switchMap(({ id }) => this.heroesService.getHeroById(id))
+      ).subscribe(hero => {
 
-        if(!hero) return this.router.navigateByUrl('/');
+        if (!hero) return this.router.navigateByUrl('/');
 
-        return this.heroForm.reset( hero );
+        return this.heroForm.reset(hero);
       });
   }
 
@@ -74,29 +74,47 @@ export class NewPageComponent implements OnInit {
     } else {
       this.heroesService.addHero(this.curretHero)
         .subscribe(hero => {
-          this.router.navigate(['/heroes/edit', hero.id ]);
+          this.router.navigate(['/heroes/edit', hero.id]);
           this.showSnakbar(`${hero.superhero} created!`);
         });
     }
   }
 
-  onDeleteHero(): void{
-    if(!this.curretHero.id) throw Error('Hero id is required');
+  onDeleteHero(): void {
+    if (!this.curretHero.id) throw Error('Hero id is required');
 
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: this.heroForm.value,
     });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if(!result) return;
+    //FORMA 1 DE HACERLO
+    // dialogRef.afterClosed()
+    //   .subscribe(result => {
+    //     if (!result) return;
 
-      this.heroesService.deleteHerobyId(this.curretHero.id);
-      this.router.navigate(['/heroes']);
-    });
+    //     this.heroesService.deleteHerobyId(this.curretHero.id)
+    //       .subscribe(wasDeleted => {
+    //         if (wasDeleted)
+    //           this.router.navigate(['/heroes']);
+    //       });
+
+    //   });
+
+    // Forma optimizada usando operadores rxjs
+    dialogRef.afterClosed()
+      .pipe(
+        filter((result: boolean) => result),
+        switchMap(() => this.heroesService.deleteHerobyId(this.curretHero.id)),
+        filter( wasDeleted => wasDeleted)
+      )
+      .subscribe(() => {
+        this.showSnakbar(`${this.curretHero.superhero} deleted!`)
+        this.router.navigate(['/heroes']);
+      });
   }
 
-  showSnakbar(message: string): void{
-    this.snackbar.open( message, 'done', {
+  showSnakbar(message: string): void {
+    this.snackbar.open(message, 'done', {
       duration: 2500
     })
   }
