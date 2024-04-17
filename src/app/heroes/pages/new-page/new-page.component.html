@@ -45,7 +45,7 @@
         </form>
 
         <div class="flex justify-content-between">
-          <button mat-flat-button color="warn" *ngIf="curretHero.id">
+          <button mat-flat-button color="warn" *ngIf="curretHero.id" (click)="onDeleteHero()">
             Borrar
           </button>
           <span></span>
