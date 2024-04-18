@@ -10,7 +10,6 @@ export class AppComponent {
   title = 'heroesApp';
 
   constructor(
-    private authService: AuthService
   ) { }
 
 }
